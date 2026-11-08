@@ -3,210 +3,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Навигатор ЕГЭ</title>
+  <title>Навигация ЕГЭ Биология</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    :root {
+      --bg-color: #f4f7f4;
+      --card-bg: #ffffff;
+      --text-main: #1e2a1e;
+      --text-muted: #7a8f7a;
+      --green-dark: #2f5d3f;
+      --green-light: #e8f1e8;
+      --border-color: #e3ebe3;
+    }
+    
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
     body {
-      background: #f0f2f5;
-      color: #1a1a2e;
-      padding: 16px;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 20px 16px 40px;
       min-height: 100vh;
-    }
-    .page { display: none; }
-    .page.active { display: block; }
-
-    h1 {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: #1a1a2e;
-      padding-left: 4px;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 18px 20px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       -webkit-tap-highlight-color: transparent;
     }
-    .card:active {
-      transform: scale(0.97);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .card-text {
-      font-size: 17px;
-      font-weight: 500;
-      line-height: 1.3;
-    }
-    .card-arrow {
-      font-size: 18px;
-      color: #8e8e93;
-      flex-shrink: 0;
-      margin-left: 12px;
-    }
+    
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* Заголовки */
+    .header { text-align: center; margin-bottom: 24px; padding-top: 10px; }
+    .header h1 { font-size: 26px; font-weight: 800; color: var(--green-dark); letter-spacing: -0.5px; }
+    .header .subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+
+    .page-title { text-align: center; font-size: 20px; font-weight: 700; color: var(--green-dark); margin-bottom: 24px; }
+
+    /* Карточки главного меню */
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 15px rgba(47, 93, 63, 0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      border: 1px solid var(--border-color);
+    }
+    .card:active { transform: scale(0.97); background: var(--green-light); }
+    .card-icon { font-size: 22px; }
+    .card-text { font-size: 16px; font-weight: 600; color: var(--green-dark); }
+
+    /* Некликабельные заголовки разделов */
+    .section-header {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 28px 0 12px 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-header::after {
+      content: "";
+      flex-grow: 1;
+      height: 2px;
+      background: var(--green-light);
+      border-radius: 2px;
+    }
+    .section-header:first-of-type { margin-top: 0; }
+
+    /* Карточки тем */
+    .topic-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+    .topic-card:active { transform: scale(0.98); background: var(--green-light); border-color: var(--green-light); }
+    .topic-title { font-size: 15px; font-weight: 500; color: var(--text-main); line-height: 1.4; }
+    
+    /* Кнопка назад */
     .back-btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: none;
-      border: none;
-      color: #007aff;
-      font-size: 16px;
-      font-weight: 500;
-      padding: 8px 4px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .back-btn:active { opacity: 0.6; }
-
-    .link-card {
-      background: #ffffff;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 14px;
-      padding: 16px 20px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      color: var(--green-dark);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 16px;
+      margin-bottom: 20px;
       cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      transition: background 0.15s;
     }
-    .link-card:active { background: #f8f8f8; }
-    .link-card .title {
-      font-size: 16px;
-      font-weight: 500;
-      color: #1a1a2e;
-      margin-bottom: 4px;
-    }
-    .link-card .sub {
-      font-size: 13px;
-      color: #8e8e93;
-    }
-
-    .empty-hint {
-      color: #8e8e93;
-      font-size: 15px;
-      text-align: center;
-      padding: 40px 20px;
-    }
+    .back-btn:active { background: var(--green-light); }
   </style>
 </head>
 <body>
 
-<!-- 第1页：首页 -->
+<!-- ========== ГЛАВНАЯ ========== -->
 <div id="page-home" class="page active">
-  <h1>📚 Навигатор</h1>
-  <div class="card" onclick="goTo('page-tasks')">
-    <span class="card-text">📐 Теория по кодификатору</span>
-    <span class="card-arrow">›</span>
+  <div class="header">
+    <h1>Навигация</h1>
+    <div class="subtitle">ЕГЭ Биология 2027</div>
   </div>
-  <div class="card" onclick="goTo('page-tasks')">
-    <span class="card-text">📝 Теория по заданиям</span>
-    <span class="card-arrow">›</span>
+
+  <div class="card" onclick="goTo('page-codifier')">
+    <span class="card-icon">📖</span><span class="card-text">Теория по кодификатору</span>
   </div>
-  <div class="card" onclick="goTo('page-tasks')">
-    <span class="card-text">✏️ Практика</span>
-    <span class="card-arrow">›</span>
+  <div class="card" onclick="goTo('page-tasks-theory')">
+    <span class="card-icon">📝</span><span class="card-text">Теория по заданиям</span>
   </div>
-  <div class="card" onclick="goTo('page-tasks')">
-    <span class="card-text">🎬 Видеоуроки</span>
-    <span class="card-arrow">›</span>
+  <div class="card" onclick="goTo('page-topics-practice')">
+    <span class="card-icon">🧪</span><span class="card-text">Практика по темам</span>
+  </div>
+  <div class="card" onclick="goTo('page-tasks-practice')">
+    <span class="card-icon">✏️</span><span class="card-text">Практика по заданиям</span>
+  </div>
+  <div class="card" onclick="goTo('page-variants')">
+    <span class="card-icon">📋</span><span class="card-text">Пробные варианты</span>
   </div>
 </div>
 
-<!-- 第2页：Задания -->
-<div id="page-tasks" class="page">
+<!-- ========== ТЕОРИЯ ПО КОДИФИКАТОРУ ========== -->
+<div id="page-codifier" class="page">
   <button class="back-btn" onclick="goTo('page-home')">‹ Назад</button>
-  <h1>Выберите задание</h1>
-  <div class="card" onclick="showSubtopics('task1')">
-    <span class="card-text">Задание 1</span>
-    <span class="card-arrow">›</span>
-  </div>
-  <div class="card" onclick="showSubtopics('task2')">
-    <span class="card-text">Задание 2</span>
-    <span class="card-arrow">›</span>
-  </div>
-  <div class="card" onclick="showSubtopics('task3')">
-    <span class="card-text">Задание 3</span>
-    <span class="card-arrow">›</span>
-  </div>
-  <div class="card" onclick="showSubtopics('task4')">
-    <span class="card-text">Задание 4</span>
-    <span class="card-arrow">›</span>
-  </div>
+  <div class="page-title">Кодификатор</div>
+  <div id="codifier-content"></div>
 </div>
 
-<!-- 第3页：某个 задания 下的 конспекты（микротемы） -->
-<div id="page-subtopics" class="page">
-  <button class="back-btn" onclick="goTo('page-tasks')">‹ Назад к заданиям</button>
-  <h1 id="subtopics-title">Задание 1</h1>
-  <div id="subtopics-list"></div>
+<!-- ========== ТЕОРИЯ ПО ЗАДАНИЯМ ========== -->
+<div id="page-tasks-theory" class="page">
+  <button class="back-btn" onclick="goTo('page-home')">‹ Назад</button>
+  <div class="page-title">Теория по заданиям</div>
+  <div id="tasks-theory-content"></div>
+</div>
+
+<!-- ========== ПРАКТИКА ПО ТЕМАМ ========== -->
+<div id="page-topics-practice" class="page">
+  <button class="back-btn" onclick="goTo('page-home')">‹ Назад</button>
+  <div class="page-title">Практика по темам</div>
+  <div id="topics-practice-content"></div>
+</div>
+
+<!-- ========== ПРАКТИКА ПО ЗАДАНИЯМ ========== -->
+<div id="page-tasks-practice" class="page">
+  <button class="back-btn" onclick="goTo('page-home')">‹ Назад</button>
+  <div class="page-title">Практика по заданиям</div>
+  <div id="tasks-practice-content"></div>
+</div>
+
+<!-- ========== ПРОБНЫЕ ВАРИАНТЫ ========== -->
+<div id="page-variants" class="page">
+  <button class="back-btn" onclick="goTo('page-home')">‹ Назад</button>
+  <div class="page-title">Пробные варианты</div>
+  <div id="variants-content"></div>
 </div>
 
 <script>
-  // ============================================================
-  // 在这里配置你的数据：每个 задания 对应一个数组，
-  // 数组里每一项就是一条"конспект/микротема"，点击后跳转到 Telegram 帖子
-  // ============================================================
-  const DATA = {
-    task1: [
-      { title: 'Микротема 1.1: Основные понятия', sub: 'Теория + примеры', url: 'https://t.me/your_channel/101' },
-      { title: 'Микротема 1.2: Формулы и правила', sub: 'Краткий конспект', url: 'https://t.me/your_channel/102' },
-      { title: 'Микротема 1.3: Разбор типовых ошибок', sub: 'Практика', url: 'https://t.me/your_channel/103' },
-    ],
-    task2: [
-      { title: 'Микротема 2.1: Введение', sub: 'Теория', url: 'https://t.me/your_channel/201' },
-      { title: 'Микротема 2.2: Алгоритм решения', sub: 'Пошагово', url: 'https://t.me/your_channel/202' },
-    ],
-    task3: [
-      { title: 'Микротема 3.1: Базовые concepts', sub: 'Конспект', url: 'https://t.me/your_channel/301' },
-    ],
-    task4: [
-      { title: 'Микротема 4.1: Полный разбор', sub: 'Видео + текст', url: 'https://t.me/your_channel/401' },
-      { title: 'Микротема 4.2: Тренировочные задания', sub: 'Практика', url: 'https://t.me/your_channel/402' },
-    ],
-  };
-
-  // ---------- 以下不用改 ----------
-
   function goTo(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
     window.scrollTo(0, 0);
   }
 
-  function showSubtopics(taskKey) {
-    const listEl = document.getElementById('subtopics-list');
-    const titleEl = document.getElementById('subtopics-title');
-    const items = DATA[taskKey] || [];
-
-    // 设置标题
-    const labels = { task1: 'Задание 1', task2: 'Задание 2', task3: 'Задание 3', task4: 'Задание 4' };
-    titleEl.textContent = labels[taskKey] || 'Конспекты';
-
-    if (items.length === 0) {
-      listEl.innerHTML = '<div class="empty-hint">Пока нет материалов</div>';
-    } else {
-      listEl.innerHTML = items.map(item => `
-        <div class="link-card" onclick="openPost('${item.url}')">
-          <div class="title">${item.title}</div>
-          <div class="sub">${item.sub}</div>
-        </div>
-      `).join('');
-    }
-
-    goTo('page-subtopics');
-  }
-
-  // 在 Telegram 中打开帖子链接
   function openPost(url) {
+    if (url === '#') {
+      alert('Ссылка на этот конспект еще не добавлена');
+      return;
+    }
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.openTelegramLink(url);
     } else {
@@ -214,10 +190,269 @@
     }
   }
 
-  // 告诉 Telegram 应用已就绪（去掉加载动画）
+  function renderSections(containerId, sections) {
+    const el = document.getElementById(containerId);
+    let html = '';
+    sections.forEach(sec => {
+      html += `<div class="section-header">${sec.section}</div>`;
+      sec.topics.forEach(t => {
+        html += `<div class="topic-card" onclick="openPost('${t.url}')"><div class="topic-title">${t.title}</div></div>`;
+      });
+    });
+    el.innerHTML = html;
+  }
+
+  function renderSimple(containerId, items) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = items.map(item => `
+      <div class="topic-card" onclick="openPost('${item.url}')">
+        <div class="topic-title">${item.title}</div>
+      </div>
+    `).join('');
+  }
+
+  // ============================================================
+  // ДАННЫЕ: МАКСИМАЛЬНО ПОДРОБНАЯ РАЗБИВКА (1 кнопка = 1 тема)
+  // ============================================================
+
+  const CODIFIER = [
+    {
+      section: '1. Биология как наука',
+      topics: [
+        { title: '1.1. Биология — комплексная наука', url: '#' },
+        { title: '1.2. Свойства живых систем. Уровни организации', url: '#' },
+        { title: '1.3. Методы биологической науки. Эксперимент', url: '#' }
+      ]
+    },
+    {
+      section: '2. Клетка как биологическая система',
+      topics: [
+        { title: '2.1. Клеточная теория. Методы цитологии', url: '#' },
+        { title: '2.2. Химический состав клетки. Неорганические вещества', url: '#' },
+        { title: '2.3. Органические вещества клетки: белки, липиды, углеводы, НК', url: '#' },
+        { title: '2.4. Строение прокариотической клетки', url: '#' },
+        { title: '2.5. Плазматическая мембрана. Транспорт веществ', url: '#' },
+        { title: '2.6. Одномембранные органоиды (ЭПС, Гольджи, лизосомы)', url: '#' },
+        { title: '2.7. Полуавтономные органоиды (митохондрии, пластиды)', url: '#' },
+        { title: '2.8. Немембранные органоиды (рибосомы, клеточный центр)', url: '#' },
+        { title: '2.9. Обмен веществ. Ферменты. Энергетический обмен', url: '#' },
+        { title: '2.10. Пластический обмен. Фотосинтез и хемосинтез', url: '#' },
+        { title: '2.11. Биосинтез белка. Транскрипция и трансляция', url: '#' },
+        { title: '2.12. Вирусы — неклеточные формы жизни', url: '#' },
+        { title: '2.13. Клеточный цикл. Митоз. Репликация ДНК', url: '#' }
+      ]
+    },
+    {
+      section: '3. Организм как биологическая система',
+      topics: [
+        { title: '3.1. Бесполое и половое размножение. Гаметогенез', url: '#' },
+        { title: '3.2. Мейоз. Биологическое значение', url: '#' },
+        { title: '3.3. Онтогенез. Эмбриональное развитие', url: '#' },
+        { title: '3.4. Постэмбриональное развитие. Развитие растений', url: '#' },
+        { title: '3.5. История генетики. Законы Г. Менделя', url: '#' },
+        { title: '3.6. Сцепленное наследование. Генетика пола', url: '#' },
+        { title: '3.7. Взаимодействие генов', url: '#' },
+        { title: '3.8. Изменчивость. Виды мутаций', url: '#' },
+        { title: '3.9. Селекция. Основные методы', url: '#' },
+        { title: '3.10. Биотехнология. Генная и клеточная инженерия', url: '#' }
+      ]
+    },
+    {
+      section: '4. Система и многообразие органического мира',
+      topics: [
+        // Бактерии и грибы
+        { title: '4.1. Бактерии. Строение и жизнедеятельность', url: '#' },
+        { title: '4.2. Грибы. Лишайники', url: '#' },
+        // Растения
+        { title: '4.3. Растения. Общая характеристика. Ткани', url: '#' },
+        { title: '4.4. Вегетативные органы растений (корень, побег)', url: '#' },
+        { title: '4.5. Генеративные органы растений (цветок, плод, семя)', url: '#' },
+        { title: '4.6. Размножение и развитие растений. Жизненные циклы', url: '#' },
+        { title: '4.7. Водоросли', url: '#' },
+        { title: '4.8. Мхи', url: '#' },
+        { title: '4.9. Папоротники, хвощи, плауны', url: '#' },
+        { title: '4.10. Голосеменные', url: '#' },
+        { title: '4.11. Покрытосеменные (Цветковые). Классы', url: '#' },
+        // Животные
+        { title: '4.12. Животные. Общая характеристика. Ткани', url: '#' },
+        { title: '4.13. Одноклеточные (Простейшие)', url: '#' },
+        { title: '4.14. Кишечнополостные', url: '#' },
+        { title: '4.15. Плоские черви', url: '#' },
+        { title: '4.16. Круглые черви', url: '#' },
+        { title: '4.17. Кольчатые черви', url: '#' },
+        { title: '4.18. Моллюски', url: '#' },
+        { title: '4.19. Членистоногие. Ракообразные', url: '#' },
+        { title: '4.20. Членистоногие. Паукообразные', url: '#' },
+        { title: '4.21. Членистоногие. Насекомые', url: '#' },
+        { title: '4.22. Иглокожие', url: '#' },
+        { title: '4.23. Хордовые. Общая характеристика. Бесчерепные', url: '#' },
+        { title: '4.24. Хордовые. Рыбы', url: '#' },
+        { title: '4.25. Хордовые. Земноводные (Амфибии)', url: '#' },
+        { title: '4.26. Хордовые. Пресмыкающиеся (Рептилии)', url: '#' },
+        { title: '4.27. Хордовые. Птицы', url: '#' },
+        { title: '4.28. Хордовые. Млекопитающие (Звери)', url: '#' }
+      ]
+    },
+    {
+      section: '5. Организм человека и его здоровье',
+      topics: [
+        { title: '5.1. Нервная система. Рефлекторная дуга', url: '#' },
+        { title: '5.2. Высшая нервная деятельность. Анализаторы', url: '#' },
+        { title: '5.3. Эндокринная система. Железы и гормоны', url: '#' },
+        { title: '5.4. Опорно-двигательная система', url: '#' },
+        { title: '5.5. Внутренняя среда организма. Кровь', url: '#' },
+        { title: '5.6. Иммунитет', url: '#' },
+        { title: '5.7. Кровеносная система. Круги кровообращения', url: '#' },
+        { title: '5.8. Дыхательная система', url: '#' },
+        { title: '5.9. Пищеварительная система. Обмен веществ', url: '#' },
+        { title: '5.10. Выделительная система. Кожа', url: '#' },
+        { title: '5.11. Размножение и развитие человека. Гигиена', url: '#' }
+      ]
+    },
+    {
+      section: '6. Теория эволюции. Развитие жизни',
+      topics: [
+        { title: '6.1. Эволюционная теория Ч. Дарвина. СТЭ', url: '#' },
+        { title: '6.2. Популяция как единица эволюции. Движущие силы', url: '#' },
+        { title: '6.3. Вид, его критерии. Видообразование', url: '#' },
+        { title: '6.4. Макроэволюция. Направления и пути эволюции', url: '#' },
+        { title: '6.5. Методы изучения эволюции. Доказательства', url: '#' },
+        { title: '6.6. Гипотезы возникновения жизни на Земле', url: '#' },
+        { title: '6.7. Эволюция растений и животных', url: '#' },
+        { title: '6.8. Антропогенез. Происхождение и эволюция человека', url: '#' }
+      ]
+    },
+    {
+      section: '7. Экосистемы и присущие им закономерности',
+      topics: [
+        { title: '7.1. Экология как наука. Среды обитания', url: '#' },
+        { title: '7.2. Экологические факторы. Абиотические факторы', url: '#' },
+        { title: '7.3. Биотические факторы. Типы взаимодействий', url: '#' },
+        { title: '7.4. Экосистемы. Цепи питания. Сукцессии', url: '#' },
+        { title: '7.5. Биосфера. Учение В.И. Вернадского. Биомы', url: '#' },
+        { title: '7.6. Экологические кризисы. Охрана природы', url: '#' }
+      ]
+    }
+  ];
+
+  const TASKS_THEORY = [
+    { title: 'Задание 1', url: '#' }, { title: 'Задание 2', url: '#' },
+    { title: 'Задание 3', url: '#' }, { title: 'Задание 4', url: '#' },
+    { title: 'Задание 5', url: '#' }, { title: 'Задание 6', url: '#' },
+    { title: 'Задание 7', url: '#' }, { title: 'Задание 8', url: '#' },
+    { title: 'Задание 9', url: '#' }, { title: 'Задание 10', url: '#' },
+    { title: 'Задание 11', url: '#' }, { title: 'Задание 12', url: '#' },
+    { title: 'Задание 13', url: '#' }, { title: 'Задание 14', url: '#' },
+    { title: 'Задание 15', url: '#' }, { title: 'Задание 16', url: '#' },
+    { title: 'Задание 17', url: '#' }, { title: 'Задание 18', url: '#' },
+    { title: 'Задание 19', url: '#' }, { title: 'Задание 20', url: '#' },
+    { title: 'Задание 21', url: '#' }, { title: 'Задание 22', url: '#' },
+    { title: 'Задание 23', url: '#' }, { title: 'Задание 24', url: '#' },
+    { title: 'Задание 25', url: '#' }, { title: 'Задание 26', url: '#' },
+    { title: 'Задание 27', url: '#' }, { title: 'Задание 28', url: '#' }
+  ];
+
+  const TOPICS_PRACTICE = [
+    {
+      section: '1. Биология как наука',
+      topics: [
+        { title: 'Практика: Методы биологии', url: '#' },
+        { title: 'Практика: Свойства и уровни живых систем', url: '#' }
+      ]
+    },
+    {
+      section: '2. Клетка как биологическая система',
+      topics: [
+        { title: 'Практика: Химический состав клетки', url: '#' },
+        { title: 'Практика: Строение клеток (прокариоты и эукариоты)', url: '#' },
+        { title: 'Практика: Органоиды клетки', url: '#' },
+        { title: 'Практика: Метаболизм. Энергетический обмен', url: '#' },
+        { title: 'Практика: Фотосинтез. Хемосинтез', url: '#' },
+        { title: 'Практика: Биосинтез белка. Вирусы', url: '#' },
+        { title: 'Практика: Митоз. Клеточный цикл', url: '#' }
+      ]
+    },
+    {
+      section: '3. Организм как биологическая система',
+      topics: [
+        { title: 'Практика: Размножение. Мейоз', url: '#' },
+        { title: 'Практика: Онтогенез', url: '#' },
+        { title: 'Практика: Законы Менделя. Решение задач', url: '#' },
+        { title: 'Практика: Сцепленное наследование. Генетика пола', url: '#' },
+        { title: 'Практика: Изменчивость. Селекция', url: '#' }
+      ]
+    },
+    {
+      section: '4. Многообразие органического мира',
+      topics: [
+        { title: 'Практика: Бактерии и грибы', url: '#' },
+        { title: 'Практика: Растения (водоросли, мхи, папоротники)', url: '#' },
+        { title: 'Практика: Растения (голосеменные, покрытосеменные)', url: '#' },
+        { title: 'Практика: Животные (беспозвоночные)', url: '#' },
+        { title: 'Практика: Животные (хордовые)', url: '#' }
+      ]
+    },
+    {
+      section: '5. Организм человека',
+      topics: [
+        { title: 'Практика: Нервная и эндокринная системы', url: '#' },
+        { title: 'Практика: Опорно-двигательная система', url: '#' },
+        { title: 'Практика: Кровь. Иммунитет. Кровообращение', url: '#' },
+        { title: 'Практика: Дыхание. Пищеварение. Выделение', url: '#' }
+      ]
+    },
+    {
+      section: '6. Эволюция',
+      topics: [
+        { title: 'Практика: Движущие силы эволюции', url: '#' },
+        { title: 'Практика: Видообразование. Макроэволюция', url: '#' },
+        { title: 'Практика: Антропогенез', url: '#' }
+      ]
+    },
+    {
+      section: '7. Экосистемы',
+      topics: [
+        { title: 'Практика: Экологические факторы', url: '#' },
+        { title: 'Практика: Цепи питания. Экосистемы', url: '#' },
+        { title: 'Практика: Биосфера. Охрана природы', url: '#' }
+      ]
+    }
+  ];
+
+  const TASKS_PRACTICE = [
+    { title: 'Практика: Задание 1', url: '#' }, { title: 'Практика: Задание 2', url: '#' },
+    { title: 'Практика: Задание 3', url: '#' }, { title: 'Практика: Задание 4', url: '#' },
+    { title: 'Практика: Задание 5', url: '#' }, { title: 'Практика: Задание 6', url: '#' },
+    { title: 'Практика: Задание 7', url: '#' }, { title: 'Практика: Задание 8', url: '#' },
+    { title: 'Практика: Задание 9', url: '#' }, { title: 'Практика: Задание 10', url: '#' },
+    { title: 'Практика: Задание 11', url: '#' }, { title: 'Практика: Задание 12', url: '#' },
+    { title: 'Практика: Задание 13', url: '#' }, { title: 'Практика: Задание 14', url: '#' },
+    { title: 'Практика: Задание 15', url: '#' }, { title: 'Практика: Задание 16', url: '#' },
+    { title: 'Практика: Задание 17', url: '#' }, { title: 'Практика: Задание 18', url: '#' },
+    { title: 'Практика: Задание 19', url: '#' }, { title: 'Практика: Задание 20', url: '#' },
+    { title: 'Практика: Задание 21', url: '#' }, { title: 'Практика: Задание 22', url: '#' },
+    { title: 'Практика: Задание 23', url: '#' }, { title: 'Практика: Задание 24', url: '#' },
+    { title: 'Практика: Задание 25', url: '#' }, { title: 'Практика: Задание 26', url: '#' },
+    { title: 'Практика: Задание 27', url: '#' }, { title: 'Практика: Задание 28', url: '#' }
+  ];
+
+  const VARIANTS = [
+    { title: 'Пробный вариант №1', url: '#' },
+    { title: 'Пробный вариант №2', url: '#' },
+    { title: 'Пробный вариант №3', url: '#' },
+    { title: 'Пробный вариант №4', url: '#' }
+  ];
+
+  // Инициализация
+  renderSections('codifier-content', CODIFIER);
+  renderSections('topics-practice-content', TOPICS_PRACTICE);
+  renderSimple('tasks-theory-content', TASKS_THEORY);
+  renderSimple('tasks-practice-content', TASKS_PRACTICE);
+  renderSimple('variants-content', VARIANTS);
+
   if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand(); // 让窗口全屏显示
+    window.Telegram.WebApp.expand();
   }
 </script>
 </body>
