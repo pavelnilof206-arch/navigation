@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Навигатор ЕГЭ</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background: #f0f2f5;
+      color: #1a1a2e;
+      padding: 16px;
+      min-height: 100vh;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #1a1a2e;
+      padding-left: 4px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card:active {
+      transform: scale(0.97);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .card-text {
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    .card-arrow {
+      font-size: 18px;
+      color: #8e8e93;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: #007aff;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 8px 4px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .back-btn:active { opacity: 0.6; }
+
+    .link-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .link-card:active { background: #f8f8f8; }
+    .link-card .title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+    .link-card .sub {
+      font-size: 13px;
+      color: #8e8e93;
+    }
+
+    .empty-hint {
+      color: #8e8e93;
+      font-size: 15px;
+      text-align: center;
+      padding: 40px 20px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 第1页：首页 -->
+<div id="page-home" class="page active">
+  <h1>📚 Навигатор</h1>
+  <div class="card" onclick="goTo('page-tasks')">
+    <span class="card-text">📐 Теория по кодификатору</span>
+    <span class="card-arrow">›</span>
+  </div>
+  <div class="card" onclick="goTo('page-tasks')">
+    <span class="card-text">📝 Теория по заданиям</span>
+    <span class="card-arrow">›</span>
+  </div>
+  <div class="card" onclick="goTo('page-tasks')">
+    <span class="card-text">✏️ Практика</span>
+    <span class="card-arrow">›</span>
+  </div>
+  <div class="card" onclick="goTo('page-tasks')">
+    <span class="card-text">🎬 Видеоуроки</span>
+    <span class="card-arrow">›</span>
+  </div>
+</div>
+
+<!-- 第2页：Задания -->
+<div id="page-tasks" class="page">
+  <button class="back-btn" onclick="goTo('page-home')">‹ Назад</button>
+  <h1>Выберите задание</h1>
+  <div class="card" onclick="showSubtopics('task1')">
+    <span class="card-text">Задание 1</span>
+    <span class="card-arrow">›</span>
+  </div>
+  <div class="card" onclick="showSubtopics('task2')">
+    <span class="card-text">Задание 2</span>
+    <span class="card-arrow">›</span>
+  </div>
+  <div class="card" onclick="showSubtopics('task3')">
+    <span class="card-text">Задание 3</span>
+    <span class="card-arrow">›</span>
+  </div>
+  <div class="card" onclick="showSubtopics('task4')">
+    <span class="card-text">Задание 4</span>
+    <span class="card-arrow">›</span>
+  </div>
+</div>
+
+<!-- 第3页：某个 задания 下的 конспекты（микротемы） -->
+<div id="page-subtopics" class="page">
+  <button class="back-btn" onclick="goTo('page-tasks')">‹ Назад к заданиям</button>
+  <h1 id="subtopics-title">Задание 1</h1>
+  <div id="subtopics-list"></div>
+</div>
+
+<script>
+  // ============================================================
+  // 在这里配置你的数据：每个 задания 对应一个数组，
+  // 数组里每一项就是一条"конспект/микротема"，点击后跳转到 Telegram 帖子
+  // ============================================================
+  const DATA = {
+    task1: [
+      { title: 'Микротема 1.1: Основные понятия', sub: 'Теория + примеры', url: 'https://t.me/your_channel/101' },
+      { title: 'Микротема 1.2: Формулы и правила', sub: 'Краткий конспект', url: 'https://t.me/your_channel/102' },
+      { title: 'Микротема 1.3: Разбор типовых ошибок', sub: 'Практика', url: 'https://t.me/your_channel/103' },
+    ],
+    task2: [
+      { title: 'Микротема 2.1: Введение', sub: 'Теория', url: 'https://t.me/your_channel/201' },
+      { title: 'Микротема 2.2: Алгоритм решения', sub: 'Пошагово', url: 'https://t.me/your_channel/202' },
+    ],
+    task3: [
+      { title: 'Микротема 3.1: Базовые concepts', sub: 'Конспект', url: 'https://t.me/your_channel/301' },
+    ],
+    task4: [
+      { title: 'Микротема 4.1: Полный разбор', sub: 'Видео + текст', url: 'https://t.me/your_channel/401' },
+      { title: 'Микротема 4.2: Тренировочные задания', sub: 'Практика', url: 'https://t.me/your_channel/402' },
+    ],
+  };
+
+  // ---------- 以下不用改 ----------
+
+  function goTo(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showSubtopics(taskKey) {
+    const listEl = document.getElementById('subtopics-list');
+    const titleEl = document.getElementById('subtopics-title');
+    const items = DATA[taskKey] || [];
+
+    // 设置标题
+    const labels = { task1: 'Задание 1', task2: 'Задание 2', task3: 'Задание 3', task4: 'Задание 4' };
+    titleEl.textContent = labels[taskKey] || 'Конспекты';
+
+    if (items.length === 0) {
+      listEl.innerHTML = '<div class="empty-hint">Пока нет материалов</div>';
+    } else {
+      listEl.innerHTML = items.map(item => `
+        <div class="link-card" onclick="openPost('${item.url}')">
+          <div class="title">${item.title}</div>
+          <div class="sub">${item.sub}</div>
+        </div>
+      `).join('');
+    }
+
+    goTo('page-subtopics');
+  }
+
+  // 在 Telegram 中打开帖子链接
+  function openPost(url) {
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.openTelegramLink(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  // 告诉 Telegram 应用已就绪（去掉加载动画）
+  if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand(); // 让窗口全屏显示
+  }
+</script>
+</body>
+</html>
